@@ -1,5 +1,5 @@
-from app.models.task import MainTask, SubTask
-from app.schemas.sub_task import SubTaskCreate, UpdateSubTaskStatus
+from app.models import Task, SubTask
+from app.schemas.subtask import SubTaskCreate
 import datetime
 from mongoengine import DoesNotExist
 
@@ -12,19 +12,19 @@ def get_subtask_by_id(subtask_id):
     return SubTask.objects(id=subtask_id).first()
 
 
-def create_sub_task(data: SubTaskCreate):
-    sub_task = SubTask(
+def create_subtask(data: SubTaskCreate):
+    subtask = SubTask(
         name=data.name,
         status=data.status,
         expected_date=data.expected_date,
         created_date=datetime.datetime.now(datetime.timezone.utc),
         updated_date=datetime.datetime.now(datetime.timezone.utc),
     )
-    sub_task.save()
-    return sub_task
+    subtask.save()
+    return subtask
 
 
-def update_sub_task_status(subtask_id, status_update):
+def update_subtask_status(subtask_id, status_update):
     subtask = SubTask.objects(id=subtask_id).first()
     if not subtask:
         return False
@@ -35,18 +35,18 @@ def update_sub_task_status(subtask_id, status_update):
     return True
 
 
-def add_sub_task_to_main_task(task_id: str, sub_task_id: str):
+def add_subtask_to_main_task(task_id: str, subtask_id: str):
     try:
-        main_task = MainTask.objects.get(id=task_id)
-        sub_task = SubTask.objects.get(id=sub_task_id)
+        main_task = Task.objects.get(id=task_id)
+        subtask = SubTask.objects.get(id=subtask_id)
     except DoesNotExist:
         return None
 
-    existing_sub_task_ids = {str(sub.id) for sub in main_task.sub_tasks}
-    if str(sub_task.id) in existing_sub_task_ids:
+    existing_subtask_ids = {str(sub.id) for sub in main_task.subtasks}
+    if str(subtask.id) in existing_subtask_ids:
         return None
 
-    main_task.sub_tasks.append(sub_task)
+    main_task.subtasks.append(subtask)
     main_task.save()
 
     return main_task

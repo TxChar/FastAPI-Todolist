@@ -6,13 +6,13 @@ from app.core.task import (
     update_task_status,
     delete_main_task,
 )
-from app.core.sub_task import (
-    create_sub_task,
-    add_sub_task_to_main_task,
+from app.core.subtask import (
+    create_subtask,
+    add_subtask_to_main_task,
 )
 from app.schemas.task import (
-    MainTaskCreate,
-    MainTaskResponse,
+    TaskCreate,
+    TaskResponse,
     UpdateTaskStatus,
     SubTaskResponse,
 )
@@ -21,52 +21,52 @@ from typing import List
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@router.get("/", response_model=List[MainTaskResponse])
+@router.get("/", response_model=List[TaskResponse])
 def get_all_tasks():
     tasks = get_all_main_tasks()
     return [
-        MainTaskResponse(
+        TaskResponse(
             id=str(task.id),
             name=task.name,
             status=task.status,
-            sub_tasks=[
+            subtasks=[
                 SubTaskResponse(
-                    id=str(sub_task.id),  # แปลง ObjectId เป็น string
-                    name=sub_task.name,
-                    status=sub_task.status,
+                    id=str(subtask.id),  # แปลง ObjectId เป็น string
+                    name=subtask.name,
+                    status=subtask.status,
                 )
-                for sub_task in task.sub_tasks
+                for subtask in task.subtasks
             ],
         )
         for task in tasks
     ]
 
 
-@router.get("/{task_id}", response_model=MainTaskResponse)
+@router.get("/{task_id}", response_model=TaskResponse)
 def get_task(task_id: str):
     task = get_main_task_by_id(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return MainTaskResponse(
+    return TaskResponse(
         id=str(task.id),
         name=task.name,
         status=task.status,
-        sub_tasks=[
+        subtasks=[
             SubTaskResponse(
-                id=str(sub_task.id),  # แปลง ObjectId เป็น string
-                name=sub_task.name,
-                status=sub_task.status,
+                id=str(subtask.id),  # แปลง ObjectId เป็น string
+                name=subtask.name,
+                status=subtask.status,
             )
-            for sub_task in task.sub_tasks
+            for subtask in task.subtasks
         ],
     )
 
 
-@router.post("/create", response_model=MainTaskResponse)
-def create_task(task_data: MainTaskCreate):
-    task = create_main_task(task_data)
-    return MainTaskResponse(
-        id=str(task.id), name=task.name, status=task.status, sub_tasks=task.sub_tasks
+@router.post("/create", response_model=TaskResponse)
+def create_or_edit_task(task_data: TaskCreate):
+    task = create_task(task_data)
+    return TaskResponse(
+        id=str(task.id), name=task.name, status=task.status, subtasks=task.subtasks
     )
 
 
@@ -86,25 +86,25 @@ def delete_task(task_id: str):
     raise HTTPException(status_code=404, detail="Task not found")
 
 
-@router.patch("/{task_id}/add_subtask/{sub_task_id}", response_model=MainTaskResponse)
-def add_sub_task(task_id: str, sub_task_id: str):
-    updated_task = add_sub_task_to_main_task(task_id, sub_task_id)
+@router.patch("/{task_id}/add_subtask/{subtask_id}", response_model=TaskResponse)
+def add_subtask(task_id: str, subtask_id: str):
+    updated_task = add_subtask_to_main_task(task_id, subtask_id)
     if not updated_task:
         raise HTTPException(
             status_code=404,
-            detail="MainTask or SubTask not found or SubTask already exists",
+            detail="Task or SubTask not found or SubTask already exists",
         )
 
-    return MainTaskResponse(
+    return TaskResponse(
         id=str(updated_task.id),
         name=updated_task.name,
         status=updated_task.status,
-        sub_tasks=[
+        subtasks=[
             SubTaskResponse(
-                id=str(sub_task.id),
-                name=sub_task.name,
-                status=sub_task.status,
+                id=str(subtask.id),
+                name=subtask.name,
+                status=subtask.status,
             )
-            for sub_task in updated_task.sub_tasks
+            for subtask in updated_task.subtasks
         ],
     )

@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 import app.dependencies
 
-from app.routers.v1 import tasks, sub_tasks
+from app.routers.v1 import subtask, tasks
 
 app = FastAPI()
 
 app.include_router(tasks.router)
-app.include_router(sub_tasks.router)
+app.include_router(subtask.router)
 
 
 # @app.get("/")

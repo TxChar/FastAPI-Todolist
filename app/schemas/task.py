@@ -1,22 +1,22 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
-from .sub_task import SubTaskCreate, SubTaskResponse
+from .subtask import SubTaskCreate, SubTaskResponse
 
 
-class MainTaskBase(BaseModel):
+class TaskBase(BaseModel):
     name: str
     status: str = Field(default="Pending", pattern="^(Pending|In Progress|Done)$")
     expected_date: Optional[datetime] = None
 
 
-class MainTaskCreate(MainTaskBase):
-    sub_tasks: List[SubTaskCreate] = []
+class TaskCreate(TaskBase):
+    subtasks: List[SubTaskCreate] = []
 
 
-class MainTaskResponse(MainTaskBase):
+class TaskResponse(TaskBase):
     id: str
-    sub_tasks: List[SubTaskResponse] = []
+    subtasks: List[SubTaskResponse] = []
 
     class Config:
         from_attributes = True
