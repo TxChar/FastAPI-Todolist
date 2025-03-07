@@ -6,6 +6,7 @@ from app.core.subtask import (
     get_subtask_by_id,
     create_subtask,
     update_subtask_status,
+    soft_delete_subtask,
 )
 
 router = APIRouter(prefix="/subtasks", tags=["subtasks"])
@@ -48,3 +49,10 @@ def update_status(subtask_id: str, status_update: UpdateSubTaskStatus):
         "message": "SubTask status updated successfully",
         "subtask_id": str(subtask_id),
     }
+
+
+@router.delete("/delete/{task_id}")
+def delete_subtask(task_id: str):
+    if soft_delete_subtask(task_id):
+        return {"message": "SubTask deleted successfully"}
+    raise HTTPException(status_code=404, detail="SubTask not found")

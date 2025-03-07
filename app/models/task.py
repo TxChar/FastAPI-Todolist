@@ -1,5 +1,12 @@
 import datetime
-from mongoengine import Document, StringField, DateTimeField, ListField, ReferenceField
+from mongoengine import (
+    Document,
+    StringField,
+    DateTimeField,
+    ListField,
+    ReferenceField,
+    BooleanField,
+)
 from .subtask import SubTask
 from .object_id_validate import PyObjectId
 from typing import Optional
@@ -12,11 +19,11 @@ class Task(Document):
     status = StringField(
         required=True, choices=["Pending", "In Progress", "Done"], default="Pending"
     )
+    is_deleted = BooleanField(default=False, choices=[True, False])
     created_date = DateTimeField(default=datetime.datetime.now(datetime.timezone.utc))
     updated_date = DateTimeField(default=datetime.datetime.now(datetime.timezone.utc))
     expected_date = DateTimeField()
 
-    # ใช้ ReferenceField เพื่อเชื่อมโยงกับ Sub-Task (1 Main Task มีหลาย Sub-Tasks)
     subtasks = ListField(ReferenceField(SubTask, reverse_delete_rule=2))
 
     meta = {"collection": "tasks"}

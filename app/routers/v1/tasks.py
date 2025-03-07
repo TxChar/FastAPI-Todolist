@@ -1,13 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from app.core.task import (
-    create_main_task,
+    create_task,
     get_all_main_tasks,
     get_main_task_by_id,
     update_task_status,
-    delete_main_task,
+    soft_delete_task,
 )
 from app.core.subtask import (
-    create_subtask,
     add_subtask_to_main_task,
 )
 from app.schemas.task import (
@@ -81,7 +80,7 @@ def update_status(task_id: str, status_update: UpdateTaskStatus):
 
 @router.delete("/delete/{task_id}")
 def delete_task(task_id: str):
-    if delete_main_task(task_id):
+    if soft_delete_task(task_id):
         return {"message": "Task deleted successfully"}
     raise HTTPException(status_code=404, detail="Task not found")
 

@@ -50,3 +50,14 @@ def add_subtask_to_main_task(task_id: str, subtask_id: str):
     main_task.save()
 
     return main_task
+
+
+def soft_delete_subtask(subtask_id):
+    subtask = SubTask.objects(id=subtask_id, is_deleted=False).first()
+    if subtask:
+        subtask.update(
+            set__is_deleted=True,
+            set__updated_date=datetime.datetime.now(datetime.timezone.utc),
+        )
+        return True
+    return False
