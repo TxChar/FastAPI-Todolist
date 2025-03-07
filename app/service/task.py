@@ -4,11 +4,11 @@ import datetime
 
 
 def get_all_main_tasks():
-    return Task.objects()
+    return Task.objects(is_deleted=False)
 
 
 def get_main_task_by_id(task_id):
-    return Task.objects(id=task_id).first()
+    return Task.objects(id=task_id, is_deleted=False).first()
 
 
 def create_task(data: TaskCreate):
@@ -35,6 +35,23 @@ def update_task_status(task_id, status_update):
         set__updated_date=datetime.datetime.now(datetime.timezone.utc),
     )
     return True
+
+
+def update_task_partial(task_id, data):
+    task = Task.objects(id=task_id, is_deleted=False).first()
+    if not task:
+        return None
+    update_data = {}
+    if data.name is not None:
+        update_data["set__name"] = data.name
+    if data.expected_date is not None:
+        update_data["set__expected_date"] = data.expected_date
+
+    if update_data:
+        update_data["set__updated_date"] = datetime.datetime.now(datetime.timezone.utc)
+        task.update(**update_data)
+
+    return task.reload()
 
 
 def soft_delete_task(task_id):

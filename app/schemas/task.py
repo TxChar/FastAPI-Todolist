@@ -24,3 +24,8 @@ class TaskResponse(TaskBase):
 
 class UpdateTaskStatus(BaseModel):
     status: str = Field(default="Pending", pattern="^(Pending|In Progress|Done)$")
+
+
+class UpdateTaskPartial(BaseModel):
+    name: Optional[str] = None
+    expected_date: Optional[datetime] = None

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas.user import UserCreate, UserResponse
-from app.core.user import create_user, get_users
+from app.service.user import create_user, get_users
 from typing import List
 
 router = APIRouter(prefix="/users", tags=["users"])

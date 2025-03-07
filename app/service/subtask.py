@@ -5,11 +5,11 @@ from mongoengine import DoesNotExist
 
 
 def get_all_subtasks():
-    return SubTask.objects()
+    return SubTask.objects(is_deleted=False)
 
 
 def get_subtask_by_id(subtask_id):
-    return SubTask.objects(id=subtask_id).first()
+    return SubTask.objects(id=subtask_id, is_deleted=False).first()
 
 
 def create_subtask(data: SubTaskCreate):
@@ -50,6 +50,23 @@ def add_subtask_to_main_task(task_id: str, subtask_id: str):
     main_task.save()
 
     return main_task
+
+
+def update_subtask_partial(subtask_id, data):
+    subtask = SubTask.objects(id=subtask_id, is_deleted=False).first()
+    if not subtask:
+        return None
+    update_data = {}
+    if data.name is not None:
+        update_data["set__name"] = data.name
+    if data.expected_date is not None:
+        update_data["set__expected_date"] = data.expected_date
+
+    if update_data:
+        update_data["set__updated_date"] = datetime.datetime.now(datetime.timezone.utc)
+        subtask.update(**update_data)
+
+    return subtask.reload()
 
 
 def soft_delete_subtask(subtask_id):

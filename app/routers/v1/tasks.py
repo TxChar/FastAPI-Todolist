@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from app.core.task import (
+from app.service.task import (
     create_task,
     get_all_main_tasks,
     get_main_task_by_id,
     update_task_status,
     soft_delete_task,
+    update_task_partial,
 )
-from app.core.subtask import (
+from app.service.subtask import (
     add_subtask_to_main_task,
 )
 from app.schemas.task import (
@@ -14,6 +15,7 @@ from app.schemas.task import (
     TaskResponse,
     UpdateTaskStatus,
     SubTaskResponse,
+    UpdateTaskPartial,
 )
 from typing import List
 
@@ -107,3 +109,12 @@ def add_subtask(task_id: str, subtask_id: str):
             for subtask in updated_task.subtasks
         ],
     )
+
+
+@router.patch("/edit/{task_id}")
+def update_task(task_id: str, update_data: UpdateTaskPartial):
+    updated_task = update_task_partial(task_id, update_data)
+    if not updated_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    return {"message": "Task updated successfully", "task": updated_task}

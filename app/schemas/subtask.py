@@ -22,3 +22,8 @@ class SubTaskResponse(SubTaskBase):
 
 class UpdateSubTaskStatus(BaseModel):
     status: str = Field(default="Pending", pattern="^(Pending|In Progress|Done)$")
+
+
+class UpdateSubTaskPartial(BaseModel):
+    name: Optional[str] = None
+    expected_date: Optional[datetime] = None
