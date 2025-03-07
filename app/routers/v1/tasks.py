@@ -1,0 +1,51 @@
+from fastapi import APIRouter, HTTPException
+from app.core.task import (
+    create_main_task,
+    get_all_main_tasks,
+    get_main_task_by_id,
+    update_main_task,
+    delete_main_task,
+)
+from app.schemas.task import MainTaskCreate, MainTaskResponse
+from typing import List
+
+router = APIRouter(prefix="/tasks", tags=["tasks"])
+
+
+@router.post("/", response_model=MainTaskResponse)
+def create_task(task_data: MainTaskCreate):
+    task = create_main_task(task_data)
+    return MainTaskResponse(
+        id=str(task.id), name=task.name, status=task.status, sub_tasks=task.sub_tasks
+    )
+
+
+@router.get("/", response_model=List[MainTaskResponse])
+def get_tasks():
+    tasks = get_all_main_tasks()
+    return [
+        MainTaskResponse(
+            id=str(task.id),
+            name=task.name,
+            status=task.status,
+            sub_tasks=task.sub_tasks,
+        )
+        for task in tasks
+    ]
+
+
+@router.get("/{task_id}", response_model=MainTaskResponse)
+def get_task(task_id: str):
+    task = get_main_task_by_id(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return MainTaskResponse(
+        id=str(task.id), name=task.name, status=task.status, sub_tasks=task.sub_tasks
+    )
+
+
+@router.delete("/{task_id}")
+def delete_task(task_id: str):
+    if delete_main_task(task_id):
+        return {"message": "Task deleted successfully"}
+    raise HTTPException(status_code=404, detail="Task not found")
