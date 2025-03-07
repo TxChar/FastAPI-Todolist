@@ -5,7 +5,6 @@ from app.schemas.task import SubTaskCreate, SubTaskResponse
 router = APIRouter(prefix="/subtasks", tags=["subtasks"])
 
 
-# ✅ API สร้าง Sub-Task
 @router.post("/", response_model=SubTaskResponse)
 def create_new_sub_task(sub_task_data: SubTaskCreate):
     sub_task = create_sub_task(sub_task_data)
