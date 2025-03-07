@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-import app.dependencies
+import app.config.database
 
 from app.routers.v1 import subtask, tasks
 
